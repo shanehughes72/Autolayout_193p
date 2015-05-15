@@ -41,7 +41,7 @@ class ViewController: UIViewController
         //OPTIONAL CHAINING
         nameLabel.text = loggedInUser?.name
         companyLabel.text = loggedInUser?.company
-        imageView.image = loggedInUser?.image
+        image = loggedInUser?.image
     }
     
     
@@ -61,10 +61,51 @@ class ViewController: UIViewController
     
     
     
-    //a
+    var aspectRatioConstraint: NSLayoutConstraint? {
+        willSet{
+            if let existingConstraint = aspectRatioConstraint {
+                view.removeConstraint(existingConstraint)
+            }
+        }
+        
+        didSet {
+            if let newConstraint = aspectRatioConstraint {
+                view.addConstraint(newConstraint)
+            }
+        }
+    }
+    
+    
+    
+    var image: UIImage? {
+        get {
+            return imageView.image
+        }
+        set {
+            imageView.image = newValue
+            if let constrainedView = imageView {
+                if let newImage = newValue {
+                    aspectRatioConstraint = NSLayoutConstraint(
+                        item: constrainedView,
+                        attribute: .Width,
+                        relatedBy: .Equal,
+                        toItem: constrainedView,
+                        attribute: .Height,
+                        multiplier: newImage.aspectRatio,
+                        constant: 0)
+                } else {
+                    aspectRatioConstraint = nil
+                }
+            }
+            
+        }
+    }
     
     
 }// ViewController
+
+// IMAGE IS NOT DEFINED IN USER. CAN'T HAVE AN IMAGE BECAUSE USER.SWIFT IS A MODEL.
+// NO UIKIT AND IMAGE IS A UI
 
 extension User
 {
@@ -78,7 +119,12 @@ extension User
 }
 
 
-
+extension UIImage
+{
+    var aspectRatio: CGFloat {
+        return size.height != 0 ? size.width / size.height : 0
+    }
+}
 
 
 
